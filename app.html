@@ -1,0 +1,100 @@
+<html>
+<h1> Angular App</h1>
+<head>
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js"></script>
+
+<script src='https://maps.googleapis.com/maps/api/js?sensor=false'></script>
+<script src='lodash.min.js'></script>
+<script src='angular-google-maps.min.js'></script>
+
+
+<script>
+
+var app = angular.module("mapsDemo", ["google-maps"]);
+
+app.controller('BusLocationController', function($scope, BusLocationService) {
+
+   //var busLocation = BusLocationService.getBusLocation();
+
+   //$scope.busLocation = busLocation;
+
+   BusLocationService.getBusLocation().then(function(busLocation){
+      $scope.busLocation = busLocation.data.buses[0];
+      $scope.busCoords = {
+        //translate from bongo to Google maps
+        latitude: Number($scope.busLocation.lat),
+        longitude: Number($scope.busLocation.lng)
+      };
+   });
+
+   $scope.latitude = 42;
+   $scope.longitude = 58;
+
+   $scope.map = {
+      center: {
+          latitude: 41.657476845067166,
+          longitude: -91.52159309387207
+        },
+      zoom: 13
+  };
+   
+});
+
+app.service('BusLocationService', function($http) {
+
+  
+
+  this.getBusLocation = function () {
+    return $http.get('http://api.ebongo.org/buslocation', 
+    {params:
+      {   
+        agency: 'uiowa',
+        route: 'red',
+        api_key: 'MTFUcpZstkSBFKg4QlsKNk9z4oBEodyM',
+        format: 'json'
+      }
+    });
+  };
+});
+
+</script>
+<style>
+
+.angular-google-map-container { height: 400px; }
+
+</style>
+
+</head>
+
+<body ng-app="mapsDemo">
+
+
+<div ng-controller="BusLocationController">
+    <!-- Location: {{busLocation}} -->
+    <table style="width:100%">
+  <tr>
+    <td>Latitude: {{busLocation.latitude}}</td>
+  </tr>
+  <tr>
+    <td>Longitude: {{busLocation.longitude}}</td>
+  </tr>
+</table>
+{{busLocation}}
+<p>Center: {{map.center}}</p>
+<google-map center="map.center" zoom="map.zoom">
+  <marker ng-if='busCoords' idKey='"1"'coords='busCoords'></marker> 
+  </google-map>
+</div>
+
+
+<button ng-click="  sampleVariable = 'omgsh you clicked'  ">CLICK ME</button>
+
+<input ng-model="sampleVariable" />
+{{sampleVariable}}
+
+
+<h1>Omgosh this is an app!</h1>
+</body>
+
+</html>
